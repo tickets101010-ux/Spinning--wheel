@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10070a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spin the Wheel">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Spin the Wheel — V1</title>
+<style>
+:root{--bg:#080506;--panel:#180b10;--panel2:#241017;--text:#fbf4f6;--muted:#c0aeb3;--red:#a91d3b;--red2:#6d0d23;--line:#000}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#4b102055,transparent 40%),#080506;color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.app{width:min(100%,520px);margin:auto;padding:8px 11px 14px}
+header{text-align:center;padding:2px 0 6px}.logo{font-weight:950;letter-spacing:.11em;font-size:23px;text-transform:uppercase;text-shadow:0 2px 12px #a91d3b55}.tag{font-size:11px;color:var(--muted);margin-top:2px}
+.card{background:linear-gradient(145deg,#2a1119,#10070a);border:1px solid #512431;border-radius:19px;padding:10px;box-shadow:0 13px 34px #0009}
+.modebar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}.mode,.secondary{border:1px solid #4b202a;background:linear-gradient(180deg,#2a121a,#1a0b10);color:var(--text);border-radius:11px;padding:8px 5px;font-weight:850;min-height:42px}.mode.active{background:linear-gradient(135deg,#bd2948,#700d24);border-color:#d66a80}
+.wheel-wrap{position:relative;display:grid;place-items:center;width:min(77vw,345px);aspect-ratio:1;margin:0 auto 6px;border-radius:50%}.wheel{width:100%;height:100%;display:block;transform-origin:50% 50%;border-radius:50%;clip-path:circle(50% at 50% 50%);overflow:hidden;border:4px solid #000;}.pointer{position:absolute;z-index:5;top:-1px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:25px solid #fff;filter:drop-shadow(0 2px 3px #000)}.hub{position:absolute;width:66px;height:66px;border-radius:50%;background:#0c080a;border:2px solid #fff4;display:grid;place-items:center;font-size:12px;font-weight:900;letter-spacing:.08em}
+.spin{width:100%;border:1px solid #df7188;border-radius:14px;padding:12px;background:linear-gradient(135deg,#bd2948,#700d24);color:#fff;font-weight:950;font-size:16px;min-height:48px}.spin:disabled{opacity:.55}
+.result{margin-top:7px;padding:11px;border-radius:13px;background:#200d14;border:1px solid #5b2936}.result h2{margin:3px 0;font-size:20px}.result p{margin:0;color:#d6c6ca;font-size:14px;line-height:1.4}.eyebrow{font-size:10px;letter-spacing:.13em;font-weight:900;color:#db8fa0}.row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.note{text-align:center;color:#9e858c;font-size:10px;margin-top:6px}
+.panel{display:none;margin-top:7px}.panel.open{display:block}h3{margin:2px 0 7px;font-size:17px}.small{font-size:11px;color:var(--muted);line-height:1.4}.field{width:100%;margin:6px 0;padding:10px;border-radius:11px;border:1px solid #4b202a;background:#0d0709;color:#fff;font:inherit}
+.challenge{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #000}.challenge strong{font-size:13px}.challenge span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.star{border:0;background:none;color:#777;font-size:22px}.star.on{color:#ffd45a}
+.timer{position:fixed;inset:0;background:#050305ed;display:none;align-items:center;justify-content:center;padding:16px;z-index:20}.timer.open{display:flex}.timerbox{width:min(420px,100%);background:#1a0b10;border:1px solid #512431;border-radius:24px;padding:24px;text-align:center}.clock{font-size:70px;font-weight:950;margin:8px 0 14px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">Spin the Wheel</div><div class="tag">Who's brave enough to spin?</div></header>
+<div class="card">
+<div class="modebar"><button class="mode active" data-mode="all">ALL</button><button class="mode" data-mode="task">TASKS</button><button class="mode" data-mode="wild">WILD</button></div>
+<div class="wheel-wrap"><div class="pointer"></div><svg id="wheel" class="wheel" viewBox="0 0 440 440"></svg><div class="hub">SPIN</div></div>
+<button id="spin" class="spin">🎡 SPIN THE WHEEL</button>
+<div class="row"><button class="secondary" id="timerBtn">⏱ Timer</button><button class="secondary" id="favBtn">★ Favourites</button></div>
+<div id="result" class="result" style="display:none"><div id="rtype" class="eyebrow"></div><h2 id="rtitle"></h2><p id="rdesc"></p><div class="row"><button class="secondary" id="done">✓ Done</button><button class="secondary" id="again">↻ Spin Again</button></div></div>
+</div>
+<div class="nav"><button class="secondary" data-panel="custom">＋ Custom</button><button class="secondary" data-panel="list">☷ Challenges</button><button class="secondary" data-panel="help">? How to Play</button></div>
+<section id="custom" class="panel card"><h3>Add your own challenge</h3><div class="small">Custom challenges stay on this device.</div><input id="ctitle" class="field" placeholder="Challenge title"><textarea id="cdesc" class="field" placeholder="What should happen?"></textarea><select id="ctype" class="field"><option value="task">Task</option><option value="wild">Wild</option></select><button id="add" class="spin">ADD CHALLENGE</button></section>
+<section id="list" class="panel card"><h3>Challenges</h3><div id="challengeList"></div></section>
+<section id="help" class="panel card"><h3>How to Play</h3><p class="small">Choose a mode, spin, read the result and agree to it before playing. Either person can stop at any time.</p><p class="small">Adults only. Agree boundaries and a safeword where appropriate. Never continue with anything either person is uncomfortable with.</p></section>
+<div class="note">V1 • Consensual adult play • Play within agreed boundaries</div>
+</div>
+<div id="timer" class="timer"><div class="timerbox"><div class="eyebrow">Challenge Timer</div><div id="clock" class="clock">01:00</div><div class="row"><button id="startTimer" class="spin">START</button><button id="closeTimer" class="secondary">CLOSE</button></div></div></div>
+<script>
+(()=> {
+const base=[
+["task","2-minute obedience","Follow the Domme’s instructions for two minutes."],["task","Chosen pose","Hold a chosen pose for 60 seconds."],["task","Three compliments","Give the Domme three genuine compliments."],["task","Ask permission","Ask permission before your next action."],["task","Outfit choice","Wear an item chosen by the Domme for 10 minutes."],["task","Position challenge","Kneel or sit in a designated position for 2 minutes."],["task","Blindfolded sensory","Take part in a mutually agreed blindfolded sensory challenge."],["task","Massage","Give the Domme a massage."],["task","Domme chooses","Let the Domme choose your next activity."],["task","10 playful swats","10 playful swats with a pre-agreed safe implement."],["task","Choose a task","Choose a task for the Domme."],["wild","Domme’s Choice","The Domme gets control of the next 5 minutes."],["wild","Mystery Box","Blindfold on; complete the revealed challenge."],["wild","No Talking","Follow instructions silently for 5 minutes."],["wild","Command Chain","Complete 5 commands in succession."],["wild","Power Pose","Hold the Domme’s chosen pose while maintaining eye contact."],["wild","Outfit Order","Domme chooses what you wear for the next round."],["wild","Tease & Deny","Domme controls when the challenge ends."],["wild","Punishment or Pleasure","Domme chooses the category of the next spin."],["wild","Double Down","Spin twice and complete both results."],["wild","Wildcard","Domme invents a challenge on the spot."],["wild","Ultimate Submission","Surrender your next three decisions to the Domme."]
+].map((x,i)=>({id:"b"+i,type:x[0],title:x[1],desc:x[2]}));
+let customs=JSON.parse(localStorage.getItem("stw_custom_v1")||"[]"), favs=JSON.parse(localStorage.getItem("stw_favs_v1")||"[]"), mode="all",angle=0,busy=false,timerSec=60,timerInt=null;
+const all=()=>[...base,...customs], items=()=>all().filter(x=>mode==="all"||x.type===mode), wheel=document.getElementById("wheel");
+function draw(){const a=items(),n=a.length,c=220,r=207,ns="http://www.w3.org/2000/svg";wheel.innerHTML="";for(let i=0;i<n;i++){const p0=i/n*Math.PI*2-Math.PI/2,p1=(i+1)/n*Math.PI*2-Math.PI/2,x0=c+r*Math.cos(p0),y0=c+r*Math.sin(p0),x1=c+r*Math.cos(p1),y1=c+r*Math.sin(p1),path=document.createElementNS(ns,"path");path.setAttribute("d",`M ${c} ${c} L ${x0} ${y0} A ${r} ${r} 0 1 1 ${x1} ${y1} Z`);path.setAttribute("fill",i%2?"#77162f":"#a72846");path.setAttribute("stroke","#000");path.setAttribute("stroke-width","3");wheel.appendChild(path);const mid=(p0+p1)/2,tx=c+r*.64*Math.cos(mid),ty=c+r*.64*Math.sin(mid),t=document.createElementNS(ns,"text");t.setAttribute("x",tx);t.setAttribute("y",ty);t.setAttribute("fill","#fff");t.setAttribute("font-size",n>18?"11":"13");t.setAttribute("font-weight","900");t.setAttribute("text-anchor","middle");t.setAttribute("dominant-baseline","middle");t.textContent=String(i+1);wheel.appendChild(t)}wheel.style.transform=`rotate(${angle}deg)`}
+function show(x){document.getElementById("rtype").textContent=x.type==="wild"?"WILD SPIN":"TASK";document.getElementById("rtitle").textContent=x.title;document.getElementById("rdesc").textContent=x.desc;document.getElementById("result").style.display="block"}
+function spin(){if(busy)return;const a=items(),i=Math.floor(Math.random()*a.length),step=360/a.length,target=360-(i*step+step/2),cur=((angle%360)+360)%360,delta=(target-cur+360)%360;angle+=1440+delta;busy=true;document.getElementById("spin").disabled=true;wheel.style.transition="transform 4.1s cubic-bezier(.12,.75,.12,1)";wheel.style.transform=`rotate(${angle}deg)`;setTimeout(()=>{angle=((angle%360)+360)%360;wheel.style.transition="none";wheel.style.transform=`rotate(${angle}deg)`;busy=false;document.getElementById("spin").disabled=false;show(a[i])},4200)}
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");mode=b.dataset.mode;document.getElementById("result").style.display="none";draw()});
+document.getElementById("spin").onclick=spin;document.getElementById("again").onclick=spin;document.getElementById("done").onclick=()=>document.getElementById("result").style.display="none";
+document.querySelectorAll("[data-panel]").forEach(b=>b.onclick=()=>{const p=document.getElementById(b.dataset.panel);p.classList.toggle("open");if(b.dataset.panel==="list")renderList()});
+function renderList(){document.getElementById("challengeList").innerHTML=all().map(x=>`<div class="challenge"><div><strong>${x.title}</strong><span>${x.type.toUpperCase()} • ${x.desc}</span></div><button class="star ${favs.includes(x.id)?"on":""}" data-id="${x.id}">★</button></div>`).join("");document.querySelectorAll(".star").forEach(b=>b.onclick=()=>{const id=b.dataset.id;favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];localStorage.setItem("stw_favs_v1",JSON.stringify(favs));renderList()})}
+document.getElementById("add").onclick=()=>{const t=document.getElementById("ctitle").value.trim(),d=document.getElementById("cdesc").value.trim(),type=document.getElementById("ctype").value;if(!t||!d){alert("Add a title and challenge first.");return}customs.push({id:"c"+Date.now(),type,title:t,desc:d});localStorage.setItem("stw_custom_v1",JSON.stringify(customs));document.getElementById("ctitle").value="";document.getElementById("cdesc").value="";draw();renderList()};
+document.getElementById("favBtn").onclick=()=>{const a=all().filter(x=>favs.includes(x.id));if(!a.length){alert("No favourites yet.");return}show(a[Math.floor(Math.random()*a.length)])};
+document.getElementById("timerBtn").onclick=()=>{document.getElementById("timer").classList.add("open");updateClock()};document.getElementById("closeTimer").onclick=()=>{clearInterval(timerInt);document.getElementById("timer").classList.remove("open")};document.getElementById("startTimer").onclick=()=>{clearInterval(timerInt);timerSec=60;updateClock();timerInt=setInterval(()=>{timerSec--;updateClock();if(timerSec<=0){clearInterval(timerInt);document.getElementById("startTimer").textContent="TIME'S UP";setTimeout(()=>document.getElementById("startTimer").textContent="START",1200)}},1000)};function updateClock(){document.getElementById("clock").textContent=`00:${String(timerSec).padStart(2,"0")}`}
+draw();renderList();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body></html>
